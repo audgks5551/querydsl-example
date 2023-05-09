@@ -2,7 +2,6 @@ package io.mhan.springjpatest.repository;
 
 import io.mhan.springjpatest.posts.entity.Post;
 import io.mhan.springjpatest.posts.vo.Keyword;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Sort;
@@ -12,6 +11,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import static io.mhan.springjpatest.posts.vo.KeywordType.TITLE;
+import static io.mhan.springjpatest.posts.vo.KeywordType.TITLE_CONTENT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -89,7 +89,7 @@ public class QueryDslPostRepositoryTest extends RepositoryTestBase {
     @DisplayName("keyword title과 content값이 10이 포함된 post만 조회")
     void t7() {
         Keyword keyword = Keyword.builder()
-                .type(TITLE)
+                .type(TITLE_CONTENT)
                 .value("10")
                 .build();
         List<Post> posts = queryDslPostRepository.findAll(keyword, Sort.unsorted());

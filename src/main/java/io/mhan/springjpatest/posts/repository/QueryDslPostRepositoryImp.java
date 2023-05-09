@@ -14,7 +14,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-import static com.querydsl.core.types.dsl.Expressions.allOf;
 import static io.mhan.springjpatest.posts.entity.QPost.post;
 
 @Repository
@@ -29,6 +28,9 @@ public class QueryDslPostRepositoryImp implements QueryDslPostRepository {
         BooleanExpression containsKeyword = keyword == null ? null :
                 switch (keyword.getType()) {
             case TITLE -> post.title.contains(keyword.getValue());
+            case TITLE_CONTENT ->
+                    post.title.contains(keyword.getValue())
+                            .or(post.content.contains(keyword.getValue()));
         };
 
         // query 만들기

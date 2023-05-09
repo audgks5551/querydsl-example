@@ -1,35 +1,38 @@
-package io.mhan.springjpatest.posts.entity;
+package io.mhan.springjpatest.comments;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
-import static jakarta.persistence.CascadeType.PERSIST;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
-@Getter
 @Entity
+@Getter
 @Builder
-@Table(name = "posts")
+@Table(name = "comments")
 @NoArgsConstructor(access = PROTECTED)
 @AllArgsConstructor
-public class Post {
+public class Comment {
+
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
-    private String title;
-
     private String content;
-
-    private Long views;
 
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
+    public static Comment create(String content) {
+        Comment comment = Comment.builder()
+                .content(content)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+
+        return comment;
+    }
 }
