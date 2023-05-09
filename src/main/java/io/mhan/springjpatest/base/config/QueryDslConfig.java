@@ -1,4 +1,4 @@
-package io.mhan.springjpatest.config.init;
+package io.mhan.springjpatest.base.config;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;

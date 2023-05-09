@@ -1,4 +1,4 @@
-package io.mhan.springjpatest.config;
+package io.mhan.springjpatest.base.config;
 
 import com.p6spy.engine.logging.Category;
 import com.p6spy.engine.spy.P6SpyOptions;

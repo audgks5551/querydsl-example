@@ -1,59 +1,28 @@
 package io.mhan.springjpatest.repository;
 
 import io.mhan.springjpatest.posts.entity.Post;
-import io.mhan.springjpatest.posts.repository.PostRepository;
-import io.mhan.springjpatest.posts.repository.QueryDslPostRepository;
-import org.junit.jupiter.api.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import io.mhan.springjpatest.posts.vo.Keyword;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Sort;
 
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Random;
 
+import static io.mhan.springjpatest.posts.vo.KeywordType.TITLE;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class QueryDslPostRepositoryTest {
 
-    @Autowired
-    private PostRepository postRepository;
-
-    @Autowired
-    private QueryDslPostRepository queryDslPostRepository;
-
-    @BeforeAll
-    void beforeAll() {
-        // 초기 데이터 생성
-        Random random = new Random();
-        for (int i=1; i<=15; i++) {
-            Post post = Post.builder()
-                    .title("title" + i)
-                    .content("content" + i)
-                    .views(random.nextLong(101))
-                    .createdAt(LocalDateTime.now())
-                    .updatedAt(LocalDateTime.now())
-                    .build();
-            postRepository.save(post);
-        }
-    }
-
-    @AfterAll
-    void afterAll() {
-        // 초기 데이터 생성 모두 삭제
-        postRepository.deleteAll();
-    }
+public class QueryDslPostRepositoryTest extends RepositoryTestBase {
 
     @Test
     @DisplayName("모든 post 조회")
     void t1() {
         Sort sort = Sort.unsorted(); // 아무 정렬 조건을 주지 않는다
 
-        List<Post> posts = queryDslPostRepository.findAll(sort);
+        List<Post> posts = queryDslPostRepository.findAll(null, sort);
 
         assertThat(posts.size()).isEqualTo(15);
     }
@@ -65,7 +34,7 @@ public class QueryDslPostRepositoryTest {
 
         Sort sort = Sort.by(order);
 
-        List<Post> posts = queryDslPostRepository.findAll(sort);
+        List<Post> posts = queryDslPostRepository.findAll(null, sort);
 
         assertThat(posts).isSortedAccordingTo(Comparator.comparing(Post::getId));
     }
@@ -77,7 +46,7 @@ public class QueryDslPostRepositoryTest {
 
         Sort sort = Sort.by(order);
 
-        List<Post> posts = queryDslPostRepository.findAll(sort);
+        List<Post> posts = queryDslPostRepository.findAll(null, sort);
         Collections.reverse(posts);
 
         assertThat(posts).isSortedAccordingTo(Comparator.comparing(Post::getCreatedAt));
@@ -86,7 +55,7 @@ public class QueryDslPostRepositoryTest {
     @Test
     @DisplayName("아무 정렬 조건을 주지 않았을 때")
     void t4() {
-        List<Post> posts = queryDslPostRepository.findAll(Sort.unsorted());
+        List<Post> posts = queryDslPostRepository.findAll(null, Sort.unsorted());
 
         assertThat(posts).isSortedAccordingTo(Comparator.comparing(Post::getId));
     }
@@ -97,11 +66,35 @@ public class QueryDslPostRepositoryTest {
         Sort.Order order = Sort.Order.desc("views"); // views를 기준으로 desc 정렬
 
         Sort sort = Sort.by(order);
-        List<Post> posts = queryDslPostRepository.findAll(sort); // post1, post2, post3
+        List<Post> posts = queryDslPostRepository.findAll(null, sort); // post1, post2, post3
 
         Collections.reverse(posts); // post3, post2, post1
 
         assertThat(posts).isSortedAccordingTo(Comparator.comparing(Post::getViews));
+    }
+
+    @Test
+    @DisplayName("keyword title값이 10이 포함된 post만 조회")
+    void t6() {
+        Keyword keyword = Keyword.builder()
+                .type(TITLE)
+                .value("10")
+                .build();
+        List<Post> posts = queryDslPostRepository.findAll(keyword, Sort.unsorted());
+
+        assertThat(posts.size()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("keyword title과 content값이 10이 포함된 post만 조회")
+    void t7() {
+        Keyword keyword = Keyword.builder()
+                .type(TITLE)
+                .value("10")
+                .build();
+        List<Post> posts = queryDslPostRepository.findAll(keyword, Sort.unsorted());
+
+        assertThat(posts.size()).isEqualTo(2);
     }
 
 }

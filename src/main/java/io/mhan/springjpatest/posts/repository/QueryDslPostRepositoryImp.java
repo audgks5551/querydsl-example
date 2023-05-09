@@ -7,6 +7,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import io.mhan.springjpatest.posts.entity.Post;
+import io.mhan.springjpatest.posts.vo.Keyword;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
@@ -14,7 +15,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 import static com.querydsl.core.types.dsl.Expressions.allOf;
-import static com.querydsl.core.types.dsl.Expressions.anyOf;
 import static io.mhan.springjpatest.posts.entity.QPost.post;
 
 @Repository
@@ -24,28 +24,24 @@ public class QueryDslPostRepositoryImp implements QueryDslPostRepository {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public List<Post> findAll(Sort sort) {
+    public List<Post> findAll(Keyword keyword, Sort sort) {
+
+        BooleanExpression containsKeyword = keyword == null ? null :
+                switch (keyword.getType()) {
+            case TITLE -> post.title.contains(keyword.getValue());
+        };
 
         // query 만들기
         JPAQuery<Post> contentQuery = jpaQueryFactory
                 .select(post)
                 .from(post)
-                .where(getEq(1L))
+                .where(containsKeyword)
                 .orderBy(getOrderSpecifiers(sort));
 
         // query 실행
         List<Post> posts = contentQuery.fetch();
 
         return posts;
-    }
-
-    private static BooleanExpression getEq(Long id) {
-
-        if (id != null && (id.equals("M") || id.equals("W"))) {
-            return post.id.eq(id);
-        }
-
-        return null;
     }
 
     // OrderSpecifier 모음
